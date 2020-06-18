@@ -40,6 +40,9 @@ import MetricsModel from '../../models/MetricsModel';
 import DashMetrics from '../../../dash/DashMetrics';
 import FactoryMaker from '../../../core/FactoryMaker';
 import SwitchRequest from '../SwitchRequest.js';
+import GTA from './GTA.js';
+import BBA from './bba.js';
+import ELASTIC from './elastic.js';
 
 const QUALITY_SWITCH_RULES = 'qualitySwitchRules';
 const ABANDON_FRAGMENT_RULES = 'abandonFragmentRules';
@@ -59,6 +62,36 @@ function ABRRulesCollection() {
         let metricsModel = MetricsModel(context).getInstance();
         let dashMetrics = DashMetrics(context).getInstance();
         let mediaPlayerModel = MediaPlayerModel(context).getInstance();
+
+        // (nyhuang) For custom ABR experiments.
+        if (mediaPlayerModel.getUseCustomABR()) {
+            if (mediaPlayerModel.getUseBola()) {
+                qualitySwitchRules.push(
+                    BolaRule(context).create({
+                        metricsModel: metricsModel,
+                        dashMetrics: dashMetrics
+                    })
+                );
+            } else if (mediaPlayerModel.getUseRateBased()) {
+                // (nyhuang) ThroughputRule is RateBased.
+                qualitySwitchRules.push(
+                    ThroughputRule(context).create({
+                        metricsModel: metricsModel,
+                        dashMetrics: dashMetrics
+                    })
+                );
+            } else if (mediaPlayerModel.getUseElastic()) {
+                qualitySwitchRules.push(
+                    ELASTIC(context).create({
+                        metricsModel: metricsModel,
+                        dashMetrics: dashMetrics
+                    })
+                );
+            }
+
+            abandonFragmentRules.push(AbandonRequestsRule(context).create());
+            return;
+        }
 
         if (mediaPlayerModel.getBufferOccupancyABREnabled()) {
             qualitySwitchRules.push(

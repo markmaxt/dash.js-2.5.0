@@ -89,6 +89,11 @@ function MediaPlayerModel() {
         bufferOccupancyABREnabled,
         xhrWithCredentials,
         fastSwitchEnabled;
+    // (nyhuang) For custom ABR experiments.
+    let useCustomABR,
+        useBola,
+        useRateBased,
+        useElastic;
 
     function setup() {
         UTCTimingSources = [];
@@ -113,6 +118,11 @@ function MediaPlayerModel() {
         wallclockTimeUpdateInterval = WALLCLOCK_TIME_UPDATE_INTERVAL;
         xhrWithCredentials = { default: DEFAULT_XHR_WITH_CREDENTIALS };
 
+        // (nyhuang) For custom ABR experiments.
+        useCustomABR = false;
+        useBola = false;
+        useRateBased = false;
+        useElastic = false;
 
         retryAttempts = {
             [HTTPRequest.MPD_TYPE]:                         MANIFEST_RETRY_ATTEMPTS,
@@ -133,6 +143,39 @@ function MediaPlayerModel() {
             [HTTPRequest.INDEX_SEGMENT_TYPE]:               FRAGMENT_RETRY_INTERVAL,
             [HTTPRequest.OTHER_TYPE]:                       FRAGMENT_RETRY_INTERVAL
         };
+    }
+
+    // (nyhuang) For custom ABR experiments.
+    function setUseCustomABR(value) {
+        useCustomABR = value;
+    }
+
+    function getUseCustomABR() {
+        return useCustomABR;
+    }
+
+    function setUseBola(value) {
+        useBola = value;
+    }
+
+    function getUseBola() {
+        return useBola;
+    }
+
+    function setUseRateBased(value) {
+        useRateBased = value;
+    }
+
+    function getUseRateBased() {
+        return useRateBased;
+    }
+
+    function setUseElastic(value) {
+        useElastic = value;
+    }
+
+    function getUseElastic() {
+        return useElastic;
     }
 
     //TODO Should we use Object.define to have setters/getters? makes more readable code on other side.
@@ -412,6 +455,15 @@ function MediaPlayerModel() {
         getXHRWithCredentialsForType: getXHRWithCredentialsForType,
         setFastSwitchEnabled: setFastSwitchEnabled,
         getFastSwitchEnabled: getFastSwitchEnabled,
+        // (nyhuang) For custom experiments.
+        setUseCustomABR: setUseCustomABR,
+        getUseCustomABR: getUseCustomABR,
+        setUseBola: setUseBola,
+        getUseBola: getUseBola,
+        setUseRateBased: setUseRateBased,
+        getUseRateBased: getUseRateBased,
+        setUseElastic: setUseElastic,
+        getUseElastic: getUseElastic,
         reset: reset
     };
 

@@ -222,6 +222,8 @@ module.exports = function (grunt) {
                 },
                 options: {
                     browserifyOptions: {
+                        // (nyhuang) Too slow without --fast.
+                        fast: true,
                         debug: true
                     },
                     plugin: [

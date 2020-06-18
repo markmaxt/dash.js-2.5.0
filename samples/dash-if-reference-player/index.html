@@ -146,6 +146,33 @@
                         <input type="checkbox" id="bolaCB" ng-model="bolaSelected" ng-change="toggleBufferOccupancyABR()" ng-checked="bolaSelected">
                         Buffer Occupancy ABR
                     </label>
+
+                    <!-- (nyhuang) For custom ABR experiments. -->
+                    <label class="topcoat-checkbox" data-toggle="tooltip" data-placement="right"
+                           title="">
+                        <input type="checkbox" id="useCustomABR" ng-model="useCustomABR" ng-change="toggleUseCustomABR()" ng-checked="useCustomABR">
+                        Use custom ABR
+                    </label>
+                    <label class="topcoat-checkbox" data-toggle="tooltip" data-placement="right"
+                           title="Check Use custom ABR first!">
+                        <input type="checkbox" id="useBola" ng-model="useBola" ng-change="toggleUseBola()" ng-checked="useBola">
+                        Use BOLA
+                    </label>
+                    <label class="topcoat-checkbox" data-toggle="tooltip" data-placement="right"
+                           title="Check Use custom ABR first!">
+                        <input type="checkbox" id="useRateBased" ng-model="useRateBased" ng-change="toggleUseRateBased()" ng-checked="useRateBased">
+                        Use RateBased
+                    </label>
+                    <label class="topcoat-checkbox" data-toggle="tooltip" data-placement="right"
+                           title="Check Use custom ABR first!">
+                        <input type="checkbox" id="useElastic" ng-model="useElastic" ng-change="toggleUseElastic()" ng-checked="useElastic">
+                        Use Elastic
+                    </label>
+                    <label class="topcoat-checkbox" data-toggle="tooltip" data-placement="right"
+                           title="">
+                        <input type="checkbox" id="debug" ng-model="debug" ng-change="debug()" ng-checked="debug">
+                        Debug
+                    </label>
                 </div>
             </div>
 

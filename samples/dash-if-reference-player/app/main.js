@@ -22,7 +22,7 @@ angular.module('DashContributorsService', ['ngResource']).factory('contributors'
 app.controller('DashController', function($scope, sources, contributors) {
 
 
-    $scope.selectedItem = {url:"http://dash.edgesuite.net/akamai/bbb_30fps/bbb_30fps.mpd"};
+    $scope.selectedItem = {url:"http://219.223.189.146:8000/bird/stream.mpd"};
 
     sources.query(function (data) {
         $scope.availableStreams = data.items;
@@ -129,7 +129,7 @@ app.controller('DashController', function($scope, sources, contributors) {
     $scope.htmlLogging = false;
     $scope.videotoggle = false;
     $scope.audiotoggle = false;
-    $scope.optionsGutter = false;
+    $scope.optionsGutter = true;
     $scope.drmData = [];
     $scope.initialSettings = {audio: null, video: null};
     $scope.mediaSettingsCacheEnabled = true;
@@ -174,6 +174,13 @@ app.controller('DashController', function($scope, sources, contributors) {
     $scope.localStorageSelected = true;
     $scope.fastSwitchSelected = true;
     $scope.bolaSelected = false;
+
+    // (nyhuang) For custom ABR experiments.
+    $scope.useCustomABR = false;
+    $scope.useBola = false;
+    $scope.useRateBased = false;
+    $scope.useElastic = false;
+
     ////////////////////////////////////////
     //
     // Player Setup
@@ -467,6 +474,27 @@ app.controller('DashController', function($scope, sources, contributors) {
     $scope.toggleBufferOccupancyABR = function () {
         $scope.player.enableBufferOccupancyABR($scope.bolaSelected);
     };
+
+    // (nyhuang) For custom ABR experiments.
+    $scope.toggleUseCustomABR = function () {
+        $scope.player.setUseCustomABR($scope.useCustomABR);
+    };
+
+    $scope.toggleUseBola = function () {
+        $scope.player.setUseBola($scope.useBola);
+    };
+
+    $scope.toggleUseRateBased = function () {
+        $scope.player.setUseRateBased($scope.useRateBased);
+    };
+
+    $scope.toggleUseElastic = function () {
+        $scope.player.setUseElastic($scope.useElastic);
+    };
+
+    $scope.debug = function() {
+
+    }
 
     $scope.toggleFastSwitch = function () {
         $scope.player.setFastSwitchEnabled($scope.fastSwitchSelected);

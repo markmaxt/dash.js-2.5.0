@@ -1337,6 +1337,39 @@ function MediaPlayer() {
         mediaPlayerModel.setBufferOccupancyABREnabled(value);
     }
 
+    // (nyhuang) For custom ABR experiments.
+    function setUseCustomABR(value) {
+        mediaPlayerModel.setUseCustomABR(value);
+    }
+
+    function getUseCustomABR() {
+        mediaPlayerModel.getUseCustomABR();
+    }
+
+    function setUseBola(value) {
+        mediaPlayerModel.setUseBola(value);
+    }
+
+    function getUseBola() {
+        mediaPlayerModel.getUseBola();
+    }
+
+    function setUseRateBased(value) {
+        mediaPlayerModel.setUseRateBased(value);
+    }
+
+    function getUseRateBased() {
+        mediaPlayerModel.getUseRateBased();
+    }
+
+    function setUseElastic(value) {
+        mediaPlayerModel.setUseElastic(value);
+    }
+
+    function getUseElastic(value) {
+        mediaPlayerModel.getUseElastic(value);
+    }
+
     /**
      * Allows application to retrieve a manifest.  Manifest loading is asynchro
      * nous and
@@ -2170,6 +2203,15 @@ function MediaPlayer() {
         attachVideoContainer: attachVideoContainer,
         attachTTMLRenderingDiv: attachTTMLRenderingDiv,
         getCurrentTextTrackIndex: getCurrentTextTrackIndex,
+        // (nyhuang) For custom experiments.
+        setUseCustomABR: setUseCustomABR,
+        getUseCustomABR: getUseCustomABR,
+        setUseBola: setUseBola,
+        getUseBola: getUseBola,
+        setUseRateBased: setUseRateBased,
+        getUseRateBased: getUseRateBased,
+        setUseElastic: setUseElastic,
+        getUseElastic: getUseElastic,
         reset: reset
     };
 

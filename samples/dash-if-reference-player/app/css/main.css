@@ -56,7 +56,8 @@ a:hover {
         OPTIONS PANEL
 *****************************/
 .options-show {
-    height: 200px;
+    /* (nyhuang) Easier to see. */
+    /* height: 200px; */
     transition-property: all;
     transition-duration: .5s;
 }
