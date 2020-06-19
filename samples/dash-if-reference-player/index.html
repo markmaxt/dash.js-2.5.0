@@ -169,6 +169,11 @@
                         Use Elastic
                     </label>
                     <label class="topcoat-checkbox" data-toggle="tooltip" data-placement="right"
+                           title="Check Use custom ABR first!">
+                        <input type="checkbox" id="useBBA" ng-model="useBBA" ng-change="toggleUseBBA()" ng-checked="useBBA">
+                        Use BBA
+                    </label>
+                    <label class="topcoat-checkbox" data-toggle="tooltip" data-placement="right"
                            title="">
                         <input type="checkbox" id="debug" ng-model="debug" ng-change="debug()" ng-checked="debug">
                         Debug

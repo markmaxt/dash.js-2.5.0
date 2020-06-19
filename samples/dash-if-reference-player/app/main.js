@@ -180,6 +180,8 @@ app.controller('DashController', function($scope, sources, contributors) {
     $scope.useBola = false;
     $scope.useRateBased = false;
     $scope.useElastic = false;
+    $scope.useBBA = false;
+
 
     ////////////////////////////////////////
     //
@@ -490,6 +492,10 @@ app.controller('DashController', function($scope, sources, contributors) {
 
     $scope.toggleUseElastic = function () {
         $scope.player.setUseElastic($scope.useElastic);
+    };
+
+    $scope.toggleUseBBA = function () {
+        $scope.player.setUseBBA($scope.useBBA);
     };
 
     $scope.debug = function() {

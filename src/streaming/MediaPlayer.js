@@ -1370,6 +1370,14 @@ function MediaPlayer() {
         mediaPlayerModel.getUseElastic(value);
     }
 
+    function setUseBBA(value) {
+        mediaPlayerModel.setUseBBA(value);
+    }
+
+    function getUseBBA(value) {
+        mediaPlayerModel.getUseBBA(value);
+    }
+
     /**
      * Allows application to retrieve a manifest.  Manifest loading is asynchro
      * nous and
@@ -2212,6 +2220,8 @@ function MediaPlayer() {
         getUseRateBased: getUseRateBased,
         setUseElastic: setUseElastic,
         getUseElastic: getUseElastic,
+        setUseBBA: setUseBBA,
+        getUseBBA: getUseBBA,
         reset: reset
     };
 

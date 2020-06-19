@@ -87,6 +87,13 @@ function ABRRulesCollection() {
                         dashMetrics: dashMetrics
                     })
                 );
+            } else if (mediaPlayerModel.getUseBBA()) {
+                qualitySwitchRules.push(
+                    BBA(context).create({
+                        metricsModel: metricsModel,
+                        dashMetrics: dashMetrics
+                    })
+                );
             }
 
             abandonFragmentRules.push(AbandonRequestsRule(context).create());

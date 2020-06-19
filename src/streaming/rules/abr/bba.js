@@ -9,7 +9,8 @@
  * Written by Praveen Kumar Yadav, NUS, and modified by Abdelhak Bentaleb <bentaleb@comp.nus.edu.sg>, 2018.
  * 
  *******************************************************/
-import SwitchRequest from '../SwitchRequest.js';
+// (nyhuang) Modified.
+ import SwitchRequest from '../SwitchRequest.js';
 import BufferController from '../../controllers/BufferController.js';
 import AbrController from '../../controllers/AbrController.js';
 import {HTTPRequest} from '../../vo/metrics/HTTPRequest'; //Variable name is different in different version of dash.js
@@ -17,17 +18,10 @@ import FactoryMaker from '../../../core/FactoryMaker.js';
 import Debug from '../../../core/Debug.js';
 import DashAdapter from '../../../dash/DashAdapter.js';
 import MediaPlayerModel from '../../models/MediaPlayerModel.js';
-/* import {getBBA, bitratequalitymap, computeQoE, getutilitymetrics} from '../../../../samples/dash-if-reference-player/app/StorStatus.js'; */
-
-function getBBA() {}
-function bitratequalitymap() {}
-function computeQoE() {}
-function getutilitymetrics() {}
 
 function BBA(config) {
 
     let context = this.context; //Default
-    let log = Debug(context).getInstance().log; //To write debug log
     let dashMetrics = config.dashMetrics; //Default
     let metricsModel = config.metricsModel; //Default
     let bufferMax; //To store buffer capacity
@@ -38,7 +32,7 @@ function BBA(config) {
         plusIndex, //Index of one higher bitrate than the current bitrate
         minIndex, //min Index as in BBA paper
         minusIndex, //Index of one lower bitrate than the current bitrate
-av, //last value of throughput
+        av, //last value of throughput
         bv, //last value of bitrate
         actBuff, //as in BBA paper
         fBuffNow, //temproray variable
@@ -49,16 +43,6 @@ av, //last value of throughput
         bitrateCount, //number of available bitrate
         adapter; //Default
     /*Compute QoE varaibles*/
-	let AvgSSIMplusQT = 0;
-	let AvgSSIMplusQTSwitch = 0;
-	let AvgEvtStalls = 0;
-	let AvgEvtStallsDuration = 0;
-	let TotalSSIMplusQT = 0;
-	let PreviousSSIMplusQT = 0;
-	let TotalAvgSSIMplusQTSwitch = 0;
-	let Check = true;
-	let startD = 0;
-    let switchNBR = 0;
     var count;
 
     function setup() {
@@ -106,14 +90,10 @@ av, //last value of throughput
         return (av);
     }
 
-
-
     function getMaxIndex(rulesContext) {
-        var averageThroughput; //Default
         var lastRequestThroughput; //Default
         var mediaInfo = rulesContext.getMediaInfo(); //Default
         var mediaType = mediaInfo.type; //Default
-        var current = rulesContext.getCurrentValue(); //Default
         var metrics = metricsModel.getReadOnlyMetricsFor(mediaType); //Default
         var streamProcessor = rulesContext.getStreamProcessor(); //Default
         var abrController = streamProcessor.getABRController(); //Default
@@ -137,7 +117,6 @@ av, //last value of throughput
         bitrateCount = bitrate.length;
         mediaPlayerModel = MediaPlayerModel(context).getInstance();
         count = count + 1;
-		let LogInfo = [];
 
         if (duration >= mediaPlayerModel.getLongFormContentDurationThreshold()) {
             bufferMax = mediaPlayerModel.getBufferTimeAtTopQualityLongForm();
@@ -152,7 +131,6 @@ av, //last value of throughput
         //Getting throughput// /*Value not necessary for BBA*/
         if (!metrics || !lastRequest || lastRequest.type !== HTTPRequest.MEDIA_SEGMENT_TYPE ||
          !bufferStateVO || !bufferLevelVO ) {
-            //callback(switchRequest);
             return switchRequest;
         }
         let downloadTimeInMilliseconds;
@@ -176,7 +154,7 @@ av, //last value of throughput
             plusIndex =  minIndex + 1;
 
         }
-        if (currentIndex == 0)
+        if (!currentIndex)
         {
             minusIndex = 0;
         }
@@ -213,11 +191,6 @@ av, //last value of throughput
             minIndex = currentIndex;
         }
 
-
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         abrController.setAverageThroughput(mediaType, lastRequestThroughput);
         if (abrController.getAbandonmentStateFor(mediaType) !== AbrController.ABANDON_LOAD) {
             if (bufferStateVO.state === BufferController.BUFFER_LOADED || isDynamic) {
@@ -226,57 +199,9 @@ av, //last value of throughput
                 streamProcessor.getScheduleController().setTimeToLoadDelay(0); // TODO Watch out for seek event - no delay when seeking.!!
                 switchRequest = SwitchRequest(context).create(newQuality, SwitchRequest.STRONG);
             }
+        }
 
-            if (switchRequest.value !== SwitchRequest.NO_CHANGE && switchRequest.value !== current) {
-                log('Quetra requesting switch to index: ', switchRequest.value, 'type: ',mediaType, ' Priority: ',
-                    switchRequest.priority === SwitchRequest.DEFAULT ? 'Default' :
-                        switchRequest.priority === SwitchRequest.STRONG ? 'Strong' : 'Weak', 'Average throughput', Math.round(averageThroughput), 'kbps');
-            }
-        }
-        
-        let biratelog = (bitrate[switchRequest.value]/1000).toFixed(0);
-		let maxbitrate = parseInt((Math.max.apply(Math,bitrate)/1000).toFixed(0));
-		let QoEmetrics = getutilitymetrics();
-		if (Check == true) {
-			startD = QoEmetrics[0];
-			Check = false;
-		}
-		TotalSSIMplusQT = TotalSSIMplusQT + bitratequalitymap(biratelog,CT);
-		AvgSSIMplusQT = TotalSSIMplusQT / (count+1);
-		AvgSSIMplusQTSwitch = Math.abs(bitratequalitymap(biratelog,CT) - PreviousSSIMplusQT);
-        if (AvgSSIMplusQTSwitch != 0 ){
-            switchNBR = switchNBR + 1;
-        }
-		TotalAvgSSIMplusQTSwitch = (TotalAvgSSIMplusQTSwitch + AvgSSIMplusQTSwitch) / (count); //indexbitswitch
-        PreviousSSIMplusQT = bitratequalitymap(biratelog,CT); //  === QTselected
-		AvgEvtStalls = QoEmetrics[3] / (count+1);
-		//VideoDuration = 
-        AvgEvtStallsDuration = QoEmetrics[4] / duration;
-        if (isNaN(TotalSSIMplusQT) || isNaN(AvgSSIMplusQTSwitch) || isNaN(AvgEvtStalls) || isNaN(AvgEvtStallsDuration) || isNaN(QoEmetrics[3]) || isNaN(QoEmetrics[4])) {
-            TotalSSIMplusQT = 0;
-            AvgSSIMplusQTSwitch  = 0;
-            AvgEvtStalls = 0;
-            AvgEvtStallsDuration = 0;
-            QoEmetrics[3] = 0;
-            QoEmetrics[4] = 0;
-        }
-		let QoESTEP =  computeQoE(startD,AvgSSIMplusQT,AvgSSIMplusQTSwitch,AvgEvtStalls,AvgEvtStallsDuration);
-		if (QoESTEP > 5) {
-            QoESTEP = 5;
-        }
-        
-		
-		let QoESTEPV2 = AvgSSIMplusQT - (AvgSSIMplusQTSwitch - maxbitrate*AvgEvtStallsDuration - (((maxbitrate*startD))/duration));
-		let QoESTEPV3 = TotalSSIMplusQT - (TotalAvgSSIMplusQTSwitch - maxbitrate*QoEmetrics[4] - maxbitrate*startD);
-		let QoESTEPV4 = bitratequalitymap(biratelog,CT) - (AvgSSIMplusQTSwitch - maxbitrate*QoEmetrics[4] - maxbitrate*startD);
-       		let QoESTEPV5 = TotalSSIMplusQT - (TotalAvgSSIMplusQTSwitch - QoEmetrics[4] - startD);
-        
-        if (isNaN(QoESTEP) || isNaN(QoESTEPV2) || isNaN(QoESTEPV3) || isNaN(QoESTEPV4) || isNaN(QoESTEPV5)){
-            QoESTEP  = 0;
-        }
- 		LogInfo.push([buff,biratelog,switchRequest.value+1,bitratequalitymap(biratelog,CT),av,Math.round(lastRequestThroughput/1000),QoESTEP,QoESTEPV2,QoESTEPV3,QoESTEPV4,QoESTEPV5,AvgSSIMplusQT,TotalSSIMplusQT,AvgSSIMplusQTSwitch,TotalAvgSSIMplusQTSwitch,switchNBR,AvgEvtStalls,QoEmetrics[3],AvgEvtStallsDuration,QoEmetrics[4],startD,latencyTimeInMilliseconds/1000,downloadTimeInMilliseconds/1000]);
-		getBBA(LogInfo[0]);
-		return switchRequest;
+        return switchRequest;
     }
 
     function reset() {
@@ -284,7 +209,7 @@ av, //last value of throughput
     }
 
     instance = {
-	getMaxIndex: getMaxIndex,
+    getMaxIndex: getMaxIndex,
         reset: reset
     };
 
