@@ -9,7 +9,7 @@
  * Written by Praveen Kumar Yadav, NUS, and modified by Abdelhak Bentaleb <bentaleb@comp.nus.edu.sg>, 2018.
  * 
  *******************************************************/
-
+// (nyhuang) Modified.
 import SwitchRequest from '../SwitchRequest.js';
 import BufferController from '../../controllers/BufferController.js';
 import AbrController from '../../controllers/AbrController.js';
@@ -19,16 +19,9 @@ import Debug from '../../../core/Debug.js';
 import DashAdapter from '../../../dash/DashAdapter.js';
 import MediaPlayerModel from '../../models/MediaPlayerModel.js';
 import PlaybackController from '../../controllers/PlaybackController.js';
-/* import {getELASTIC, bitratequalitymap, computeQoE, getutilitymetrics} from '../../../../samples/dash-if-reference-player/app/StorStatus.js'; */
-
-function getELASTIC() {}
-function bitratequalitymap() {}
-function computeQoE() {}
-function getutilitymetrics() {}
 
 function ELASTIC(config) {
     let context = this.context; //Default
-    let log = Debug(context).getInstance().log; //To write debug log
     let dashMetrics = config.dashMetrics; //Default
     let metricsModel = config.metricsModel; //Default
     let bufferMax; //To store buffer capacity
@@ -39,16 +32,6 @@ function ELASTIC(config) {
         adapter, //Default
         qT, //Variable as in ELASTIC paper
         qI; //Variable as in ELASTIC paper
-    let AvgSSIMplusQT = 0;
-    let AvgSSIMplusQTSwitch = 0;
-    let AvgEvtStalls = 0;
-    let AvgEvtStallsDuration = 0;
-    let TotalSSIMplusQT = 0;
-    let PreviousSSIMplusQT = 0;
-    let TotalAvgSSIMplusQTSwitch = 0;
-    let Check = true;
-    let startD = 0;
-    let switchNBR = 0;
     var count;
     let bitrate;
 
@@ -81,11 +64,9 @@ function ELASTIC(config) {
 
     function getMaxIndex(rulesContext) {
         var downloadTime; //Default
-        var averageThroughput; //Default
         var lastRequestThroughput; //Default
         var mediaInfo = rulesContext.getMediaInfo(); //Default
         var mediaType = mediaInfo.type; //Default
-        var current = rulesContext.getCurrentValue(); //Default
         var metrics = metricsModel.getReadOnlyMetricsFor(mediaType); //Default
         var streamProcessor = rulesContext.getStreamProcessor(); //Default
         var abrController = streamProcessor.getABRController(); //Default
@@ -106,9 +87,8 @@ function ELASTIC(config) {
         let playbackController = PlaybackController(context).getInstance();
         let kp = 0.01;/*kp value i.e 0.01 is same as in paper. ki is modified as 0.0001 to avoid negative values of bitrate*/
         let ki = 0.001; // ki = 0.0001
-        let LogInfo = [];
+
         count = count + 1;
-        let bitrate = mediaInfo.bitrateList.map(b => b.bandwidth);
         if (duration >= mediaPlayerModel.getLongFormContentDurationThreshold()) {
             bufferMax = mediaPlayerModel.getBufferTimeAtTopQualityLongForm();
         } else {
@@ -116,7 +96,7 @@ function ELASTIC(config) {
         }
         play = playbackController.isPaused();
         /*Value of d(t) as in ELAASTIC paper */
-        if (play == false)
+        if (!play)
         {
             d = 1;
         }
@@ -129,7 +109,6 @@ function ELASTIC(config) {
         //DASH.js way of getting throughput//
         if (!metrics || !lastRequest || lastRequest.type !== HTTPRequest.MEDIA_SEGMENT_TYPE ||
             !bufferStateVO || !bufferLevelVO ) {
-            //callback(switchRequest);
             return switchRequest;
         }
         let downloadTimeInMilliseconds;
@@ -146,68 +125,15 @@ function ELASTIC(config) {
         downloadTime  = downloadTimeInMilliseconds/1000;
         qI = qI + downloadTime * (getQ - qT);
         bestR = ((lastRequestThroughput / (d - (kp * getQ) - (ki * qI)))/1000).toFixed(0); /*kp value i.e 0.01 is same as in paper. ki is modified as 0.0001 to vaois negative values of bitrate*/
-        //console.log('The Best Bitrate is: ',bestR, 'lastRequestThroughput:', lastRequestThroughput, 'd:',d,'kp:',kp,'getQ:',getQ,'ki:',ki,'qI',qI);
         if (abrController.getAbandonmentStateFor(mediaType) !== AbrController.ABANDON_LOAD) {
             if (bufferStateVO.state === BufferController.BUFFER_LOADED || isDynamic) {
                 newQuality = abrController.getQualityForBitrate(mediaInfo, bestR, 0);
                 streamProcessor.getScheduleController().setTimeToLoadDelay(0); // TODO Watch out for seek event - no delay when seeking.!!
                 switchRequest = SwitchRequest(context).create(newQuality, SwitchRequest.STRONG);
             }
-            if (switchRequest.value !== SwitchRequest.NO_CHANGE && switchRequest.value !== current) {
-                log('ELASTIC requesting switch to index: ', switchRequest.value, 'type: ',mediaType, ' Priority: ',
-                switchRequest.priority === SwitchRequest.DEFAULT ? 'Default' :
-                switchRequest.priority === SwitchRequest.STRONG ? 'Strong' : 'Weak', 'Average throughput', Math.round(averageThroughput), 'kbps');
-            }
         }
-        return switchRequest;
-
-        let biratelog = (bitrate[switchRequest.value]/1000).toFixed(0);
-        let maxbitrate = parseInt((Math.max.apply(Math,bitrate)/1000).toFixed(0));
-        let QoEmetrics = getutilitymetrics();
-        if (Check == true) {
-            startD = QoEmetrics[0];
-            Check = false;
-        }
-        TotalSSIMplusQT = TotalSSIMplusQT + bitratequalitymap(biratelog,CT);
-        AvgSSIMplusQT = TotalSSIMplusQT / (count+1);
-        AvgSSIMplusQTSwitch = Math.abs(bitratequalitymap(biratelog,CT) - PreviousSSIMplusQT);
-        if (AvgSSIMplusQTSwitch != 0 ){
-            switchNBR = switchNBR + 1;
-        }
-        TotalAvgSSIMplusQTSwitch = (TotalAvgSSIMplusQTSwitch + AvgSSIMplusQTSwitch) / (count);
-        PreviousSSIMplusQT = bitratequalitymap(biratelog,CT);
-        AvgEvtStalls = QoEmetrics[3] / (count+1);
-        AvgEvtStallsDuration = QoEmetrics[4] / duration;
-        if (isNaN(TotalSSIMplusQT) || isNaN(AvgSSIMplusQTSwitch) || isNaN(AvgEvtStalls) || isNaN(AvgEvtStallsDuration) || isNaN(QoEmetrics[3]) || isNaN(QoEmetrics[4])) {
-            TotalSSIMplusQT = 0;
-            AvgSSIMplusQTSwitch  = 0;
-            AvgEvtStalls = 0;
-            AvgEvtStallsDuration = 0;
-            QoEmetrics[3] = 0;
-            QoEmetrics[4] = 0;
-        }
-        let QoESTEP =  computeQoE(startD,AvgSSIMplusQT,AvgSSIMplusQTSwitch,AvgEvtStalls,AvgEvtStallsDuration);
-        if (QoESTEP > 5) {
-            QoESTEP = 5;
-        }
-        
-        
-        let QoESTEPV2 = AvgSSIMplusQT - (AvgSSIMplusQTSwitch - maxbitrate*AvgEvtStallsDuration - (((maxbitrate*startD))/duration));
-        let QoESTEPV3 = TotalSSIMplusQT - (TotalAvgSSIMplusQTSwitch - maxbitrate*QoEmetrics[4] - maxbitrate*startD);
-        let QoESTEPV4 = bitratequalitymap(biratelog,CT) - (AvgSSIMplusQTSwitch - maxbitrate*QoEmetrics[4] - maxbitrate*startD);
-            let QoESTEPV5 = TotalSSIMplusQT - (TotalAvgSSIMplusQTSwitch - QoEmetrics[4] - startD);
-        
-        if (isNaN(QoESTEP) || isNaN(QoESTEPV2) || isNaN(QoESTEPV3) || isNaN(QoESTEPV4) || isNaN(QoESTEPV5)){
-            QoESTEP  = 0;
-        }
-        
-LogInfo.push([buff,biratelog,switchRequest.value+1,bitratequalitymap(biratelog,CT),av,Math.round(lastRequestThroughput/1000),QoESTEP,QoESTEPV2,QoESTEPV3,QoESTEPV4,QoESTEPV5,AvgSSIMplusQT,TotalSSIMplusQT,AvgSSIMplusQTSwitch,TotalAvgSSIMplusQTSwitch,switchNBR,AvgEvtStalls,QoEmetrics[3],AvgEvtStallsDuration,QoEmetrics[4],startD,latencyTimeInMilliseconds/1000,downloadTimeInMilliseconds/1000]);
-        getELASTIC(LogInfo[0]);
         return switchRequest;
     }
-
-
-
 
     function reset() {
         setup();
