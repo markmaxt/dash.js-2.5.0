@@ -94,6 +94,13 @@ function ABRRulesCollection() {
                         dashMetrics: dashMetrics
                     })
                 );
+            } else if (mediaPlayerModel.getUseGTA()) {
+                qualitySwitchRules.push(
+                    GTA(context).create({
+                        metricsModel: metricsModel,
+                        dashMetrics: dashMetrics
+                    })
+                );
             }
 
             abandonFragmentRules.push(AbandonRequestsRule(context).create());

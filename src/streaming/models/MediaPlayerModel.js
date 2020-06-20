@@ -94,7 +94,8 @@ function MediaPlayerModel() {
         useBola,
         useRateBased,
         useElastic,
-        useBBA;
+        useBBA,
+        useGTA;
 
     function setup() {
         UTCTimingSources = [];
@@ -125,6 +126,7 @@ function MediaPlayerModel() {
         useRateBased = false;
         useElastic = false;
         useBBA = false;
+        useGTA = false;
 
         retryAttempts = {
             [HTTPRequest.MPD_TYPE]:                         MANIFEST_RETRY_ATTEMPTS,
@@ -186,6 +188,14 @@ function MediaPlayerModel() {
 
     function getUseBBA() {
         return useBBA;
+    }
+
+    function setUseGTA(value) {
+        useGTA = value;
+    }
+
+    function getUseGTA() {
+        return useGTA;
     }
 
     //TODO Should we use Object.define to have setters/getters? makes more readable code on other side.
@@ -476,6 +486,8 @@ function MediaPlayerModel() {
         getUseElastic: getUseElastic,
         setUseBBA: setUseBBA,
         getUseBBA: getUseBBA,
+        setUseGTA: setUseGTA,
+        getUseGTA: getUseGTA,
         reset: reset
     };
 

@@ -17,16 +17,8 @@ import DashAdapter from '../../../dash/DashAdapter';
 import Debug from '../../../core/Debug';
 import BufferController from '../../controllers/BufferController';
 import AbrController from '../../controllers/AbrController';
-/* import {getcoalitionparm,getnetstatus,bitratequalitymap,computeQoE,getutilitymetrics,getFragmentinfo,getGTA} from '../../../../samples/dash-if-reference-player/app/StorStatus.js'; */
+import {getcoalitionparm,getnetstatus,bitratequalitymap,computeQoE,getutilitymetrics,getFragmentinfo,getGTA} from './StorStatus.js';
 // Intialization
-
-function getcoalitionparm() {}
-function getnetstatus() {}
-function bitratequalitymap() {}
-function computeQoE() {}
-function getutilitymetrics() {}
-function getFragmentinfo() {}
-function getGTA() {}
 
 const BUFFER_MAX_GTA = 36;
 const BUFFER_MIN_GTA = 8;
@@ -116,7 +108,7 @@ function GTA(config) {
     let ConsensusUpdatingBitratePrevious;
     let ConsensusUpdatingSSIMplusPrevious;
     let lockCurrent;
-	
+    
     function setup() {
         mediaPlayerModel = MediaPlayerModel(context).getInstance();
         adapter = DashAdapter(context).getInstance();
@@ -1018,7 +1010,7 @@ function GTA(config) {
                 let bwavailiblestor = lastRequestThroughput - playerbwusedstore;
                 CongestionLevel = playerbwusedstore / bwavailiblestor;
                 break;
-			// To Do 
+            // To Do 
             case (type == 'PANDA'):  
                 break;
             case (type == 'EWMA'): 
@@ -1235,7 +1227,7 @@ function GTA(config) {
         return BargainingOutcomeOpt;
     }
 
-	function getBitrateIndex (rate, abrController, mediaInfo) {
+    function getBitrateIndex (rate, abrController, mediaInfo) {
         let bitrateInfo;
         let ratelist = abrController.getBitrateList(mediaInfo);
         var index;
@@ -1308,7 +1300,7 @@ function GTA(config) {
         let switchRequest = switchReq;
         let LocalObjfBitrateOptValue = 0;
         let LocalObjfSSIMplusOptValue = 0;
-		
+        
         if (BitrateSel > AvailibleBW) {
             newBitrateMaxIndex = abrController.getQualityForBitrate(mediaInfo, AvailibleBW, latanc);
             newBitrate = parseInt(Bitratelst[newBitrateMaxIndex]);
@@ -1392,7 +1384,7 @@ function GTA(config) {
             newPrefshairBWCl = LocalObjfBitrateOptValue * NCl;
             newRemainBWpref = BWtotal - BWcross - newPrefshairBWCl;
             if (LocalObjfBitrateOptValue > AvailibleBW) {
-				// All this are for CSV logging
+                // All this are for CSV logging
                 let newRequirement =  DecisionEstimationLearningPipLevel2(NEWVaribles[0], LocalObjfBitrateOptValue, AvailibleBW, NCl, mediaInfo,abrController,videoduration, step,alphaP, false,BWsliceMAX, latanc);
                 switchRequest = newRequirement[0];
                 newQtMax = newRequirement[1];
@@ -1525,7 +1517,7 @@ function GTA(config) {
         let newnewQtMax = Vars[1];
         let newnewactionMAX = [];
         let newnewBitratelst = getNewBitrateList(mediaInfo,abrController,BWsliceMAX);
-		/* Vars for CSV logging and baypass chrome sec*/
+        /* Vars for CSV logging and baypass chrome sec*/
         let newnewStepUtilityMAX = 0; 
         let newnewUtilitymetricsStor = [];
         let newnewStepUtilityMAXStor = 0; 
@@ -1654,7 +1646,7 @@ function GTA(config) {
         newConsensusUpdatingBitrateNext = newnewBitrate + newTotalConsBitrate;
         newConsensusUpdatingSSIMplusNext = newnewQtMax + newTotalConsSSIMplus;
         newConsensusUpdatingRule.push([newConsensusUpdatingBitrateNext,newConsensusUpdatingSSIMplusNext]);
-		return[switchRequest,newnewQtMax,newnewactionMAX,newnewBitratelst,newnewStepUtilityMAX,newnewUtilitymetricsStor,newnewStepUtilityMAXStor,newnewstrategyMaxSet,newnewActionsOTH,newnewactionsOth,newnewStepUtilityOTH,newnewStepUtilityOTHStor,newnewstrategyOtherSet,newnewBargainingOutcome,newnewBargainingOutcomeAllSet,newnewBargainingOutcomeOptSet,newLocalObjFunction,newLocalObjFunctionOpt,newTotalLocalObjPotf,newConsensusUpdatingRule];
+        return[switchRequest,newnewQtMax,newnewactionMAX,newnewBitratelst,newnewStepUtilityMAX,newnewUtilitymetricsStor,newnewStepUtilityMAXStor,newnewstrategyMaxSet,newnewActionsOTH,newnewactionsOth,newnewStepUtilityOTH,newnewStepUtilityOTHStor,newnewstrategyOtherSet,newnewBargainingOutcome,newnewBargainingOutcomeAllSet,newnewBargainingOutcomeOptSet,newLocalObjFunction,newLocalObjFunctionOpt,newTotalLocalObjPotf,newConsensusUpdatingRule];
     }
 
     // Buffer Constraint function
@@ -1698,7 +1690,7 @@ function GTA(config) {
         let MinBuff = BUFFER_MIN_GTA;
         let MaxBuff = BUFFER_MAX_GTA;
         let LogInfo = [];
-		
+        
         if (!metrics || !lastRequest || lastRequest.type !== HTTPRequest.MEDIA_SEGMENT_TYPE || !bufferStateVO || hasRichBuffer) {
             return switchRequest;
         }
@@ -1741,8 +1733,8 @@ function GTA(config) {
 
                 /* 3. Action-Utility relationship : Function f: a -> u */
                 let strategyMaxSet = actionutilityrelation(actionMAX,StepUtilityMAX);
-				
-				/* 4. Other Actions with their utilities, action-utility function */
+                
+                /* 4. Other Actions with their utilities, action-utility function */
                 let ActionsOTH = otheractions(BitrateSelectedInt,abrController,mediaInfo);
                 let actionoth = ActionsOTH[1];
                 let StepUtilityOTH = ComputeOtherUtilities(VideoDuration,actionoth,step);
@@ -1786,7 +1778,7 @@ function GTA(config) {
                 BargainingOutcome = CoalitionMembersAction[13];
                 BargainingOutcomeAllSet = CoalitionMembersAction[14];
                 BargainingOutcomeOptSet = CoalitionMembersAction[15];
-				
+                
                 // New variables Related to Local Objective and Potantial Functions + Consensus and its Upditing Rule
                 let LocalObjFunction = CoalitionMembersAction[16];
                 let LocalObjfBitrate = LocalObjFunction[0][0];
@@ -1969,11 +1961,11 @@ function GTA(config) {
                 }
                 setBufferInfo(mediaType, bufferStateVO.state);
                 if (CurrentbufferLevel < MinBuff || CurrentbufferLevel > MaxBuff) {
-					if (CurrentbufferLevel < MinBuff) {
-						switchRequest.value = 0;
-						switchRequest.priority = SwitchRequest.STRONG;
-						switchRequest = SwitchRequest(context).create(0, SwitchRequest.STRONG);
-					}	
+                    if (CurrentbufferLevel < MinBuff) {
+                        switchRequest.value = 0;
+                        switchRequest.priority = SwitchRequest.STRONG;
+                        switchRequest = SwitchRequest(context).create(0, SwitchRequest.STRONG);
+                    }    
                     if (bufferStateVO.state === BufferController.BUFFER_EMPTY && bufferStateDict[mediaType].firstBufferLoadedEvent !== undefined) {
                         switchRequest.value = 0;
                         switchRequest.priority = SwitchRequest.STRONG;
@@ -1983,6 +1975,7 @@ function GTA(config) {
                         log('InsufficientBufferRule requesting switch to index: ', switchRequest.value, 'type: ',mediaType, ' Priority: ', switchRequest.priority === SwitchRequest.DEFAULT ? 'Default' : switchRequest.priority === SwitchRequest.STRONG ? 'Strong' : 'Weak');
                     }
                 }
+
                 let FbitrateS = getbitratefromindex(switchRequest.value,mediaInfo,abrController);
                 QtMax = bitratequalitymap(parseInt(FbitrateS[0]),Contenet);
                 StepQT = QtMax;

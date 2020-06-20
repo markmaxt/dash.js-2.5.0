@@ -1378,6 +1378,14 @@ function MediaPlayer() {
         mediaPlayerModel.getUseBBA(value);
     }
 
+    function setUseGTA(value) {
+        mediaPlayerModel.setUseGTA(value);
+    }
+
+    function getUseGTA(value) {
+        mediaPlayerModel.getUseGTA(value);
+    }
+
     /**
      * Allows application to retrieve a manifest.  Manifest loading is asynchro
      * nous and
@@ -2222,6 +2230,8 @@ function MediaPlayer() {
         getUseElastic: getUseElastic,
         setUseBBA: setUseBBA,
         getUseBBA: getUseBBA,
+        setUseGTA: setUseGTA,
+        getUseGTA: getUseGTA,
         reset: reset
     };
 

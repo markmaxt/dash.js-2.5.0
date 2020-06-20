@@ -181,6 +181,7 @@ app.controller('DashController', function($scope, sources, contributors) {
     $scope.useRateBased = false;
     $scope.useElastic = false;
     $scope.useBBA = false;
+    $scope.useGTA = false;
 
 
     ////////////////////////////////////////
@@ -496,6 +497,10 @@ app.controller('DashController', function($scope, sources, contributors) {
 
     $scope.toggleUseBBA = function () {
         $scope.player.setUseBBA($scope.useBBA);
+    };
+
+    $scope.toggleUseGTA = function () {
+        $scope.player.setUseGTA($scope.useGTA);
     };
 
     $scope.debug = function() {
