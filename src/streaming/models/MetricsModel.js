@@ -420,6 +420,13 @@ function MetricsModel() {
         return vo;
     }
 
+    // Added to config ClientId in MetricsList
+    function setClientId(mediaType, id) {
+        var c_id = id;
+        getMetricsFor(mediaType).ClientId = [c_id];
+        metricAdded(mediaType, 'ClientId', c_id);
+    }
+
     instance = {
         metricsChanged: metricsChanged,
         metricChanged: metricChanged,
@@ -445,7 +452,9 @@ function MetricsModel() {
         addPlayList: addPlayList,
         addDVBErrors: addDVBErrors,
         updateBolaState: updateBolaState,
-        setConfig: setConfig
+        setConfig: setConfig,
+        // Added to config the ClientId
+        setClientId: setClientId
     };
 
     setup();

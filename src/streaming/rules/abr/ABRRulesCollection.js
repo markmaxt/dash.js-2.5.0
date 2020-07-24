@@ -43,6 +43,8 @@ import SwitchRequest from '../SwitchRequest.js';
 import GTA from './GTA.js';
 import BBA from './bba.js';
 import ELASTIC from './elastic.js';
+// Added by xtma
+import EdgeGuide from "./EdgeGuide.js";
 
 const QUALITY_SWITCH_RULES = 'qualitySwitchRules';
 const ABANDON_FRAGMENT_RULES = 'abandonFragmentRules';
@@ -97,6 +99,13 @@ function ABRRulesCollection() {
             } else if (mediaPlayerModel.getUseGTA()) {
                 qualitySwitchRules.push(
                     GTA(context).create({
+                        metricsModel: metricsModel,
+                        dashMetrics: dashMetrics
+                    })
+                );
+            } else if (mediaPlayerModel.getUseEdgeGuide()) {
+                qualitySwitchRules.push(
+                    EdgeGuide(context).create({
                         metricsModel: metricsModel,
                         dashMetrics: dashMetrics
                     })

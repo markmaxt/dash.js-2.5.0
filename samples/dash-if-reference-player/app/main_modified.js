@@ -1,3 +1,5 @@
+document.write("<script language=javascript src='app/user_config.js'></script>");
+
 'use strict';
 
 var app = angular.module('DashPlayer', ['DashSourcesService', 'DashContributorsService', 'angular-flot']);
@@ -22,7 +24,7 @@ angular.module('DashContributorsService', ['ngResource']).factory('contributors'
 app.controller('DashController', function($scope, sources, contributors) {
 
 
-    $scope.selectedItem = {url:"http://219.223.189.146:8000/Nicebody/stream.mpd"};
+    $scope.selectedItem = {url:'http://219.223.189.146:8000/Nicebody/stream.mpd'};
 
     sources.query(function (data) {
         $scope.availableStreams = data.items;
@@ -172,7 +174,7 @@ app.controller('DashController', function($scope, sources, contributors) {
     $scope.loopSelected = true;
     $scope.scheduleWhilePausedSelected = true;
     $scope.localStorageSelected = true;
-    $scope.fastSwitchSelected = true;
+    $scope.fastSwitchSelected = false;
     $scope.bolaSelected = false;
 
     // (nyhuang) For custom ABR experiments.
@@ -195,8 +197,55 @@ app.controller('DashController', function($scope, sources, contributors) {
     $scope.video = document.querySelector(".dash-video-player video");
     $scope.player = dashjs.MediaPlayer().create();
     $scope.player.initialize($scope.video, null, $scope.autoPlaySelected);
-    $scope.player.setFastSwitchEnabled(true);
+    $scope.player.setFastSwitchEnabled(false);
     $scope.player.attachVideoContainer(document.getElementById("videoContainer"));
+
+    let dash_metrics = $scope.player.getDashMetrics();
+    var client_id_idx = user_config.keys.indexOf("client_id");
+    $scope.player.setMetricsClientId('video', user_config.values[client_id_idx]);
+    // ----------------------------Added to upload the form data-------------------------------------
+    $scope.player.epoch_count = 0;
+    $scope.player.http_req_no = 0;
+    $scope.player.send_csv_to_server = function(chunk_csv_string, time_csv_string) {
+        let request = new XMLHttpRequest();
+        let data = new FormData();
+        if (user_config.keys.length == user_config.values.length) {
+            for (let i = 0; i < user_config.keys.length; ++i) {
+                data.append(user_config.keys[i], user_config.values[i]);
+            }
+        }
+        data.append("no", $scope.player.http_req_no++);
+        data.append("chunk", chunk_csv_string);
+        data.append("time", time_csv_string);
+        request.open("POST", "http://219.223.189.146:8000/handleFile/", true);
+        request.send(data);
+    };
+    let time_csv_data = [[
+        "epoch_count",
+        "timestamp",
+        "current_buffer"
+    ]];
+    let time_poller = setInterval(function () {
+        let dash_metrics = $scope.player.getDashMetrics();
+        if ($scope.player.getActiveStream() && dash_metrics) {
+                    let metrics = $scope.player.getMetricsFor('video');
+                    let row = [
+                        $scope.player.epoch_count,
+                        new Date().getTime(),
+                        dash_metrics.getCurrentBufferLevel(metrics)
+                    ];
+                    time_csv_data.push(row);
+            }
+    }, 50);
+
+    let stop = false;
+
+    setTimeout(function() {
+        console.log("Experiment timeout");
+        stop = true;
+    }, parseInt(user_config.exp_time) * 60 * 1000);
+    // ----------------------------------------------------------------------------------------------
+
     // Add HTML-rendered TTML subtitles except for Firefox < v49 (issue #1164)
     if (doesTimeMarchesOn()) {
         $scope.player.attachTTMLRenderingDiv($("#video-caption")[0]);
@@ -237,15 +286,61 @@ app.controller('DashController', function($scope, sources, contributors) {
     }, $scope);
 
     $scope.player.on(dashjs.MediaPlayer.events.PLAYBACK_ENDED, function(e) {
+        // -----------------Added to upload form data-------------------------------
+        let chunk_csv_data = [[
+            "epoch_count", "start_timestamp", "finish_timestamp", "video_name",
+                "chunk_download_time", "chunk_no", "track"
+                    ]],
+            http_requests = $scope.player.getDashMetrics().getHttpRequests($scope.player.getMetricsFor('video'));
+        for (let i = 0; i < http_requests.length; ++i) {
+            let request = http_requests[i];
+            if (request.type != "MediaSegment") {
+                // The "MediaSegment" is also the HTTPRequest.MEDIA_SEGMENT_TYPE
+                continue;
+            }
+            let splitted = request.url.split('/'),
+                chunk_name = splitted[splitted.length-1];
+            let row = [
+                $scope.player.epoch_count,
+                request.trequest.getTime(),
+                request.trequest.getTime() + request.interval,
+                user_config.video_names[$scope.player.video_idx],
+                request.interval,
+                chunk_name.match(/\d+/g)[0],
+                splitted[splitted.length - 2]
+            ];
+            chunk_csv_data.push(row);
+        };
+        let chunk_csv_string = chunk_csv_data.map(e => e.join(',')).join('\n');
+        let time_csv_string = time_csv_data.map(e => e.join(',')).join('\n');
+        time_csv_data = [[
+            "epoch_count",
+            "timestamp",
+            "current_buffer"
+        ]];
+        $scope.player.send_csv_to_server(chunk_csv_string, time_csv_string);
+        // --------------------------------------------------------------------------------
+
+        // Add the "stop" to justify whether we should load a new video
         if ($('#loop-cb').is(':checked') &&
             $scope.player.getActiveStream().getStreamInfo().isLast) {
+            ++$scope.player.epoch_count;
             $scope.doLoad();
+        } else if (!stop) {
+            ++$scope.player.epoch_count;
+            $scope.doLoad();
+        } else {
+            clearInterval(time_poller);
+            $scope.player.reset();
+            console.log("Experiment ends at", new Date().getTime());
         }
     }, $scope);
 
     ////////////////////////////////////////
     //
-    // DRM Events  //TODO Implement what is in eme-main and eme-index into this $scope.player to unify.  Add dialog in tab section for DRM license info.  Reinstate the DRM Options panel
+    // DRM Events  //
+    //
+    // TODO Implement what is in eme-main and eme-index into this $scope.player to unify.  Add dialog in tab section for DRM license info.  Reinstate the DRM Options panel
     //
     ////////////////////////////////////////
 
@@ -550,7 +645,21 @@ app.controller('DashController', function($scope, sources, contributors) {
 
         $scope.controlbar.reset();
         $scope.player.setProtectionData(protData);
+
+        // Renew the url
+        let video_names = user_config.video_names;
+        var client_id_idx = user_config.keys.indexOf("client_id");
+        $scope.player.video_idx = parseInt(Math.random() * video_names.length);
+        let video_name = video_names[$scope.player.video_idx];
+        if ($scope.player.video_idx ===  video_names.length || typeof video_name === "undefined") {
+            video_name = 'Nicebody';
+        }
+        console.log('The request video is ' + video_name +' , the client is ' + user_config.values[client_id_idx]);
+        let url = 'http://219.223.189.146:8000/'+ video_name + '/stream.mpd';
+        $scope.selectedItem = {url:url};
+
         $scope.player.attachSource($scope.selectedItem.url);
+        $scope.player.setMetricsClientId('video', user_config.values[client_id_idx]);
         if ($scope.initialSettings.audio) {
             $scope.player.setInitialMediaSettingsFor("audio", {lang: $scope.initialSettings.audio});
         }

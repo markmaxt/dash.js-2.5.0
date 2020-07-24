@@ -29,7 +29,7 @@
     <!-- App -->
     <script src="../../dist/dash.all.debug.js"></script>
     <script src="../../contrib/akamai/controlbar/ControlBar.js"></script>
-    <script src="app/main.js"></script>
+    <script src="app/main_modified.js"></script>
 
 </head>
 <body ng-controller="DashController" >
@@ -105,7 +105,7 @@
                 <input type="text" class="form-control" ng-model="selectedItem.url">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="toggleOptionsGutter(!optionsGutter)" ng-cloak>{{getOptionsButtonLabel()}}</button>
-                    <button class="btn btn-primary" type="button" ng-click="doLoad()">Load</button>
+                    <button class="btn btn-primary" type="button" id="doload" ng-click="doLoad()">Load</button>
                 </span>
             </div>
         </div>

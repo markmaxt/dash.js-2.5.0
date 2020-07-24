@@ -95,7 +95,9 @@ function MediaPlayerModel() {
         useRateBased,
         useElastic,
         useBBA,
-        useGTA;
+        useGTA,
+        // Added by xtma.
+        useEdgeGuide;
 
     function setup() {
         UTCTimingSources = [];
@@ -127,6 +129,8 @@ function MediaPlayerModel() {
         useElastic = false;
         useBBA = false;
         useGTA = false;
+        // (xtma) For custom ABR experiment.
+        useEdgeGuide = false;
 
         retryAttempts = {
             [HTTPRequest.MPD_TYPE]:                         MANIFEST_RETRY_ATTEMPTS,
@@ -196,6 +200,15 @@ function MediaPlayerModel() {
 
     function getUseGTA() {
         return useGTA;
+    }
+
+    // Added by xtma
+    function setUseEdgeGuide(value) {
+        useEdgeGuide = value;
+    }
+
+    function getUseEdgeGuide() {
+        return useEdgeGuide;
     }
 
     //TODO Should we use Object.define to have setters/getters? makes more readable code on other side.
@@ -488,6 +501,9 @@ function MediaPlayerModel() {
         getUseBBA: getUseBBA,
         setUseGTA: setUseGTA,
         getUseGTA: getUseGTA,
+        // (xtma) For custom experiment
+        setUseEdgeGuide: setUseEdgeGuide,
+        getUseEdgeGuide: getUseEdgeGuide,
         reset: reset
     };
 

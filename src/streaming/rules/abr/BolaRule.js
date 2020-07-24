@@ -39,6 +39,7 @@ import DashAdapter from '../../../dash/DashAdapter';
 import EventBus from '../../../core/EventBus';
 import Events from '../../../core/events/Events';
 import Debug from '../../../core/Debug';
+import {EdgeUrl, UpClientState} from "../../CustomConfiguration";
 
 // BOLA_STATE_ONE_BITRATE   : If there is only one bitrate (or initialization failed), always return NO_CHANGE.
 // BOLA_STATE_STARTUP       : Set placeholder buffer such that we download fragments at most recently measured throughput.
@@ -344,6 +345,25 @@ function BolaRule(config) {
         const mediaInfo = rulesContext.getMediaInfo();
         const mediaType = mediaInfo.type;
         const metrics = metricsModel.getReadOnlyMetricsFor(mediaType);
+
+        // ------------------------Upload to the edge----------------------------------
+        var lastRequest = dashMetrics.getCurrentHttpRequest(metrics);
+        if(!metrics || !lastRequest || lastRequest.type !== HTTPRequest.MEDIA_SEGMENT_TYPE) {
+            return switchRequest;
+        }
+        var buff = dashMetrics.getCurrentBufferLevel(metrics) ? dashMetrics.getCurrentBufferLevel(metrics) : 0.0; //current buffr occupancy
+        var video_name = lastRequest._serviceLocation.match(/http:\/\/(\S*)\/(\S*)\//)[2];
+        let url = EdgeUrl + UpClientState;
+        let request = new XMLHttpRequest();
+        let data = new FormData();
+        data.append('buffer', buff);
+        data.append('timestamp', new Date().getTime());
+        data.append('video_name', video_name);
+        data.append('raw_url', lastRequest.url);
+        data.append('client_id', metrics.ClientId[0]);
+        request.open('POST', url, false);
+        request.send(data);
+        // -----------------------------------------------------------------------------
 
         if (metrics.BolaState.length === 0) {
             // initialization

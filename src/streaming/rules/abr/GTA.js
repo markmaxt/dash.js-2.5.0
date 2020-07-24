@@ -1,8 +1,8 @@
 /*******************************************************
  * Copyright (C) 2017-2018 GTA by Abdelhak Bentaleb, NUS, bentaleb@comp.nus.edu.sg
- * 
+ *
  * This file is part of GTA.
- * 
+ *
  * GTA can not be copied and/or distributed without the express
  * permission of Abdelhak Bentaleb and NUS.
  *
@@ -55,7 +55,7 @@ function GTA(config) {
     let latencyTimeInMilliseconds;
     let netwrokstatus;
     let BWeType;
-    let BWtotal; 
+    let BWtotal;
     let CongestionLevel;
     let latency;
     let AvgBWEstimated;
@@ -87,7 +87,7 @@ function GTA(config) {
     let UtilitySTEPOthers;
     let StepUtilityOTHStor;
     let strategiesOther;
-    let alphaPower; 
+    let alphaPower;
     let BargainingPower;
     let BargainingOutcome;
     let OutcomeResultBitrate;
@@ -108,7 +108,7 @@ function GTA(config) {
     let ConsensusUpdatingBitratePrevious;
     let ConsensusUpdatingSSIMplusPrevious;
     let lockCurrent;
-    
+
     function setup() {
         mediaPlayerModel = MediaPlayerModel(context).getInstance();
         adapter = DashAdapter(context).getInstance();
@@ -178,7 +178,7 @@ function GTA(config) {
         fragmentDict = {};
         ConsensusUpdatingBitratePrevious = 0;
         ConsensusUpdatingSSIMplusPrevious = 0;
-        lockCurrent = false; 
+        lockCurrent = false;
     }
 
     // Other Functions
@@ -992,7 +992,7 @@ function GTA(config) {
                 switchRequest.value = abrController.getQualityForBitrate(mediaInfo, AvgBWEstimated, latency);
                 let BitrateS = getbitratefromindex(switchRequest.value,mediaInfo,abrController); // F
                 let playerbwused = BitrateS[0] + BWcross;
-                let bwavailible = stepbw - playerbwused; 
+                let bwavailible = stepbw - playerbwused;
                 CongestionLevel = playerbwused / bwavailible;
                 if (CongestionLevel < 0) {
                     CongestionLevel  = 0;
@@ -1010,10 +1010,10 @@ function GTA(config) {
                 let bwavailiblestor = lastRequestThroughput - playerbwusedstore;
                 CongestionLevel = playerbwusedstore / bwavailiblestor;
                 break;
-            // To Do 
-            case (type == 'PANDA'):  
+            // To Do
+            case (type == 'PANDA'):
                 break;
-            case (type == 'EWMA'): 
+            case (type == 'EWMA'):
                 break;
             case (type == 'other'):
                 break;
@@ -1125,7 +1125,7 @@ function GTA(config) {
         PreviousSSIMplusQT = QtMax;
         AvgEvtStalls = Utilitymetrics[3] / step;
         AvgEvtStallsDuration = Utilitymetrics[4] / VideoDuration;
-        let UtilitySTEPmax =  computeQoE(Utilitymetrics[0],AvgSSIMplusQT,AvgSSIMplusQTSwitch,AvgEvtStalls,AvgEvtStallsDuration);// StartUPDelay, AvgSSIMPlusQuality, AvgSSIMPlusQualitySwitch, 
+        let UtilitySTEPmax =  computeQoE(Utilitymetrics[0],AvgSSIMplusQT,AvgSSIMplusQTSwitch,AvgEvtStalls,AvgEvtStallsDuration);// StartUPDelay, AvgSSIMPlusQuality, AvgSSIMPlusQualitySwitch,
         if (isNaN(UtilitySTEPmax) || UtilitySTEPmax > 5) {
             UtilitySTEPmax = QtMax * 5;
         }
@@ -1181,7 +1181,7 @@ function GTA(config) {
     function getBargainingPower(Type, Cplayer) {
         switch (true) {
             case (Type == 'EF'):
-                alphaPower = 1 / Cplayer; 
+                alphaPower = 1 / Cplayer;
                 break;
             case (Type == 'SVF'):
                 // TO DO
@@ -1254,7 +1254,7 @@ function GTA(config) {
     }
 
     function DecisionEstimationLearningPip(actionsOth, BO, CoalitionPlayersNbr, AvailibleBW, Bitratelst, BitrateSel, qtMax, switchReq, abrController, mediaInfo, ActionsOTH, StepUtilityMAX, actionM, videoduration, step, UtilitymetricsStor, StepUtilityMAXStor, strategyMaxSet, StepUtilityOTH, StepUtilityOTHStor, strategyOtherSet, alphaP, BargainingOutcomeAllSet, BargainingOutcomeOptSet, latanc) {
-        let PrefshairBWCl = BitrateSel * NCl;
+        // let PrefshairBWCl = BitrateSel * NCl;
         let BWsliceMAX = Cl[2];
         let newBitrateMaxIndex = switchReq.value;
         let newBitrate = BitrateSel;
@@ -1300,7 +1300,7 @@ function GTA(config) {
         let switchRequest = switchReq;
         let LocalObjfBitrateOptValue = 0;
         let LocalObjfSSIMplusOptValue = 0;
-        
+
         if (BitrateSel > AvailibleBW) {
             newBitrateMaxIndex = abrController.getQualityForBitrate(mediaInfo, AvailibleBW, latanc);
             newBitrate = parseInt(Bitratelst[newBitrateMaxIndex]);
@@ -1484,7 +1484,7 @@ function GTA(config) {
 
             // compute local objective function sum ||bitratepk - bitratep{k}||
             for (var jj = 0, ljj = NCl-1; jj < ljj; jj += 1) {
-                TotalLocalObjfBitrateOpt = TotalLocalObjfBitrateOpt + Math.abs(newBitrate - LocalObjfBitrateOptValue); 
+                TotalLocalObjfBitrateOpt = TotalLocalObjfBitrateOpt + Math.abs(newBitrate - LocalObjfBitrateOptValue);
                 TotalLocalObjfSSIMplusOpt = TotalLocalObjfSSIMplusOpt + Math.abs(newQtMax - LocalObjfSSIMplusOptValue);
             }
 
@@ -1518,9 +1518,9 @@ function GTA(config) {
         let newnewactionMAX = [];
         let newnewBitratelst = getNewBitrateList(mediaInfo,abrController,BWsliceMAX);
         /* Vars for CSV logging and baypass chrome sec*/
-        let newnewStepUtilityMAX = 0; 
+        let newnewStepUtilityMAX = 0;
         let newnewUtilitymetricsStor = [];
-        let newnewStepUtilityMAXStor = 0; 
+        let newnewStepUtilityMAXStor = 0;
         let newnewstrategyMaxSet = [];
         let newnewActionsOTH = [];
         let newnewactionsOth = [];
@@ -1556,7 +1556,7 @@ function GTA(config) {
         let newTotalLocalPotfSSIMplusOptFinal = 0;
 
         if (Index === false) {
-            if (BWClReq > Avbw) { 
+            if (BWClReq > Avbw) {
                 newnewBitrateMaxIndex = abrController.getQualityForBitrate(mediaInfo, Avbw, latanc);
                 newnewBitrate = newnewBitratelst[newnewBitrateMaxIndex];
                 if (newnewBitrate > BWsliceMAX) {
@@ -1609,7 +1609,7 @@ function GTA(config) {
 
         // Now Compute Potontial function /Phi and local objective funtion f -> with the Objective is to minimize f
         for (var i = 0, ln = Vars[9].length; i < ln; i += 1) {
-            newLocalObjfBitrate[i] = Math.abs(newnewBitrate - Vars[9][i][0]); 
+            newLocalObjfBitrate[i] = Math.abs(newnewBitrate - Vars[9][i][0]);
             newLocalObjfSSIMplus[i] = Math.abs(newnewQtMax - Vars[9][i][1]);
         }
         newLocalObjFunction.push([newLocalObjfBitrate,newLocalObjfSSIMplus]);
@@ -1690,7 +1690,7 @@ function GTA(config) {
         let MinBuff = BUFFER_MIN_GTA;
         let MaxBuff = BUFFER_MAX_GTA;
         let LogInfo = [];
-        
+
         if (!metrics || !lastRequest || lastRequest.type !== HTTPRequest.MEDIA_SEGMENT_TYPE || !bufferStateVO || hasRichBuffer) {
             return switchRequest;
         }
@@ -1733,7 +1733,7 @@ function GTA(config) {
 
                 /* 3. Action-Utility relationship : Function f: a -> u */
                 let strategyMaxSet = actionutilityrelation(actionMAX,StepUtilityMAX);
-                
+
                 /* 4. Other Actions with their utilities, action-utility function */
                 let ActionsOTH = otheractions(BitrateSelectedInt,abrController,mediaInfo);
                 let actionoth = ActionsOTH[1];
@@ -1778,7 +1778,7 @@ function GTA(config) {
                 BargainingOutcome = CoalitionMembersAction[13];
                 BargainingOutcomeAllSet = CoalitionMembersAction[14];
                 BargainingOutcomeOptSet = CoalitionMembersAction[15];
-                
+
                 // New variables Related to Local Objective and Potantial Functions + Consensus and its Upditing Rule
                 let LocalObjFunction = CoalitionMembersAction[16];
                 let LocalObjfBitrate = LocalObjFunction[0][0];
@@ -1805,10 +1805,10 @@ function GTA(config) {
                 if (getbitratefromindex(switchRequest.value,mediaInfo,abrController)[0] === netwrokstatus[4]) {
                     ChunkDonwloadTimeMAX = ((lastRequest._tfinish.getTime() - lastRequest.tresponse.getTime()) || 1) / 1000;
                 }
-                
+
                 /* 9. electing bitrate "switchRequest.value" based on objective function and Preferance coalition Rule
                 /* 9a. Preferance Rule Function: Put bitrates that can selected from whol bitrate lists in deffrent listes based on width/height of each chunk */
-                
+
                 current = switchRequest.value; // update current
                 let IndexBMAX = abrController.getQualityForBitrate(mediaInfo,BitrateMAX) + 1;
 
@@ -1886,7 +1886,7 @@ function GTA(config) {
                 if (ConsensusUpdatingBitratePrevious > 0) {
                     let ConsensusBitrateIndex = abrController.getQualityForBitrate(mediaInfo, ConsensusUpdatingBitratePrevious);
                     let selecting = getbitratefromindex(ConsensusBitrateIndex,mediaInfo,abrController);
-                    let ConsensusBitrate = parseInt(selecting[0]);
+                    //let ConsensusBitrate = parseInt(selecting[0]);
                     if (current !== SwitchRequest.NO_CHANGE && current !== ConsensusBitrateIndex) {
                         newRATEIndex = ConsensusBitrateIndex;
                         if (newRATEIndex > IndexBMAX) {
@@ -1965,7 +1965,7 @@ function GTA(config) {
                         switchRequest.value = 0;
                         switchRequest.priority = SwitchRequest.STRONG;
                         switchRequest = SwitchRequest(context).create(0, SwitchRequest.STRONG);
-                    }    
+                    }
                     if (bufferStateVO.state === BufferController.BUFFER_EMPTY && bufferStateDict[mediaType].firstBufferLoadedEvent !== undefined) {
                         switchRequest.value = 0;
                         switchRequest.priority = SwitchRequest.STRONG;

@@ -1386,6 +1386,15 @@ function MediaPlayer() {
         mediaPlayerModel.getUseGTA(value);
     }
 
+    // (xtma) For custom ABR experiments.
+    function setUseEdgeGuide(value) {
+        mediaPlayerModel.setUseEdgeGuide(value);
+    }
+
+    function getUseEdgeGuide(value) {
+        mediaPlayerModel.getUseEdgeGuide(value);
+    }
+
     /**
      * Allows application to retrieve a manifest.  Manifest loading is asynchro
      * nous and
@@ -2107,6 +2116,11 @@ function MediaPlayer() {
         }
     }
 
+    // Added to config the ClientId in MediaPlayer
+    function setMetricsClientId(mediaType, id) {
+        metricsModel.setClientId(mediaType, id);
+    }
+
     instance = {
         initialize: initialize,
         on: on,
@@ -2232,7 +2246,12 @@ function MediaPlayer() {
         getUseBBA: getUseBBA,
         setUseGTA: setUseGTA,
         getUseGTA: getUseGTA,
-        reset: reset
+        // (xtma) For custom experiments.
+        setUseEdgeGuide: setUseEdgeGuide,
+        getUseEdgeGuide: getUseEdgeGuide,
+        reset: reset,
+        // Added to config the ClientId in MediaPlayer
+        setMetricsClientId: setMetricsClientId
     };
 
     setup();

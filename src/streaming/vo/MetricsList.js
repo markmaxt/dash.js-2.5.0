@@ -47,6 +47,8 @@ class MetricsList {
         this.RequestsQueue = null;
         this.DVBErrors = [];
         this.BolaState = [];
+        // For EdgeGuide to justify the client id
+        this.ClientId = [];
     }
 }
 
